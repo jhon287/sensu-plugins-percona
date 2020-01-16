@@ -13,10 +13,10 @@ Gem::Specification.new do |s|
   s.description            = 'Sensu percona plugins'
   s.email                  = '<sensu-users@googlegroups.com>'
   s.executables            = Dir.glob('bin/**/*.rb').map { |file| File.basename(file) }
-  s.files                  = Dir.glob('{bin,lib}/**/*') + %w(LICENSE README.md CHANGELOG.md)
+  s.files                  = Dir.glob('{bin,lib}/**/*') + %w[LICENSE README.md CHANGELOG.md]
   s.homepage               = 'https://github.com/sensu-plugins/sensu-plugins-percona'
   s.license                = 'MIT'
-  s.metadata               = { 
+  s.metadata               = {
     'maintainer' => 'sensu-plugin',
     'development_status' => 'active',
     'production_status' => 'unstable - testing recommended',
