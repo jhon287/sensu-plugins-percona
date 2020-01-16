@@ -31,9 +31,9 @@ Gem::Specification.new do |s|
   s.test_files             = s.files.grep(%r{^(test|spec|features)/})
   s.version                = SensuPluginsPercona::Version::VER_STRING
 
-  s.add_runtime_dependency 'sensu-plugin', '>=4.0', '<5.0'
-  s.add_runtime_dependency 'mysql2',       '0.4.8'
   s.add_runtime_dependency 'inifile',      '3.0.0'
+  s.add_runtime_dependency 'mysql2',       '0.4.10'
+  s.add_runtime_dependency 'sensu-plugin', '>=4.0', '<5.0'
 
   s.add_development_dependency 'bundler',                   '~> 2.1'
   s.add_development_dependency 'codeclimate-test-reporter', '~> 0.4'

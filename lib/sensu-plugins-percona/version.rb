@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module SensuPluginsPercona
   module Version
     MAJOR = 1

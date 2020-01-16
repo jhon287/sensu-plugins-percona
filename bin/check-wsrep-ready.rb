@@ -52,7 +52,7 @@ class CheckWsrepReady < Sensu::Plugin::Check::CLI
 
   def run
     db = Mysql2::Client.new(
-      host:     config[:hostname],
+      host: config[:hostname],
       username: config[:user],
       password: config[:password],
       database: config[:database]
@@ -63,6 +63,7 @@ class CheckWsrepReady < Sensu::Plugin::Check::CLI
   rescue Mysql2::Error => e
     critical "Percona MySQL check failed: #{e.error}"
   ensure
-    db.close if db
+    db&.close
+    # db.close if db
   end
 end

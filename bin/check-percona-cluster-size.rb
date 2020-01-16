@@ -54,7 +54,7 @@ class CheckPerconaClusterSize < Sensu::Plugin::Check::CLI
       update_config
     end
     db = Mysql2::Client.new(
-      host:     config[:hostname],
+      host: config[:hostname],
       username: config[:user],
       password: config[:password],
       database: config[:database]
@@ -65,7 +65,8 @@ class CheckPerconaClusterSize < Sensu::Plugin::Check::CLI
   rescue Mysql2::Error => e
     critical "Percona MySQL check failed: #{e.error}"
   ensure
-    db.close if db
+    db&.close
+    # db.close if db
   end
 
   def update_config

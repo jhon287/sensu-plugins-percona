@@ -108,7 +108,7 @@ class PerconaCluster2Graphite < Sensu::Plugin::Metric::CLI::Graphite
       )
 
       results = mysql.query("SHOW GLOBAL STATUS LIKE 'wsrep_%'")
-    rescue => e
+    rescue StandardError => e
       puts e.message
     end
 
