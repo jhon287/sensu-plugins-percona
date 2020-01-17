@@ -22,30 +22,43 @@ require 'mysql2'
 require 'socket'
 
 class PerconaCluster2Graphite < Sensu::Plugin::Metric::CLI::Graphite
-  option :host,
-         short: '-h HOST',
-         long: '--host HOST',
-         description: 'Mysql Host to connect to',
-         required: true
-
-  option :port,
-         short: '-P PORT',
-         long: '--port PORT',
-         description: 'Mysql Port to connect to',
-         proc: proc(&:to_i),
-         default: 3306
-
-  option :username,
-         short: '-u USERNAME',
-         long: '--user USERNAME',
-         description: 'Mysql Username',
-         required: true
+  option :user,
+         description: 'MySQL User',
+         short: '-u USER',
+         long: '--user USER',
+         default: 'root'
 
   option :password,
-         short: '-p PASSWORD',
-         long: '--pass PASSWORD',
-         description: 'Mysql password',
-         default: ''
+         description: 'MySQL Password',
+         short: '-p PASS',
+         long: '--password PASS'
+
+  option :ini,
+         description: 'ini file',
+         short: '-i',
+         long: '--ini VALUE'
+
+  option :ini_section,
+         description: 'Section in my.cnf ini file',
+         long: '--ini-section VALUE',
+         default: 'client'
+
+  option :hostname,
+         description: 'Hostname to login to',
+         short: '-h HOST',
+         long: '--hostname HOST',
+         default: 'localhost'
+
+  option :port,
+         description: 'Port to connect to',
+         short: '-P PORT',
+         long: '--port PORT',
+         default: '3306'
+
+  option :socket,
+         description: 'Socket to use',
+         short: '-s SOCKET',
+         long: '--socket SOCKET'
 
   option :scheme,
          description: 'Metric naming scheme, text to prepend to metric',
@@ -99,12 +112,23 @@ class PerconaCluster2Graphite < Sensu::Plugin::Metric::CLI::Graphite
       }
     }
 
+    if config[:ini]
+      ini = IniFile.load(config[:ini])
+      section = ini[config[:ini_section]]
+      db_user = section['user']
+      db_pass = section['password']
+    else
+      db_user = config[:user]
+      db_pass = config[:password]
+    end
+
     begin
       mysql = Mysql2::Client.new(
-        host: config[:host],
-        port: config[:port],
-        username: config[:username],
-        password: config[:password]
+        host: config[:hostname],
+        username: db_user,
+        password: db_pass,
+        port: config[:port].to_i,
+        socket: config[:socket]
       )
 
       results = mysql.query("SHOW GLOBAL STATUS LIKE 'wsrep_%'")

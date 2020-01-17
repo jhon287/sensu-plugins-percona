@@ -32,11 +32,32 @@ class CheckPerconaClusterSize < Sensu::Plugin::Check::CLI
          short: '-p PASS',
          long: '--password PASS'
 
+  option :ini,
+         description: 'ini file',
+         short: '-i',
+         long: '--ini VALUE'
+
+  option :ini_section,
+         description: 'Section in my.cnf ini file',
+         long: '--ini-section VALUE',
+         default: 'client'
+
   option :hostname,
          description: 'Hostname to login to',
          short: '-h HOST',
          long: '--hostname HOST',
          default: 'localhost'
+
+  option :port,
+         description: 'Port to connect to',
+         short: '-P PORT',
+         long: '--port PORT',
+         default: '3306'
+
+  option :socket,
+         description: 'Socket to use',
+         short: '-s SOCKET',
+         long: '--socket SOCKET'
 
   option :expected,
          description: 'Number of servers expected in the cluster',
@@ -44,36 +65,33 @@ class CheckPerconaClusterSize < Sensu::Plugin::Check::CLI
          long: '--expected NUMBER',
          default: 1
 
-  option :ini,
-         description: 'ini file',
-         short: '-i',
-         long: '--ini VALUE'
-
   def run
     if config[:ini]
-      update_config
+      ini = IniFile.load(config[:ini])
+      section = ini[config[:ini_section]]
+      db_user = section['user']
+      db_pass = section['password']
+    else
+      db_user = config[:user]
+      db_pass = config[:password]
     end
-    db = Mysql2::Client.new(
-      host: config[:hostname],
-      username: config[:user],
-      password: config[:password],
-      database: config[:database]
-    )
-    cluster_size = db.query("SHOW GLOBAL STATUS LIKE 'wsrep_cluster_size'").first['Value'].to_i
-    critical "Expected to find #{config[:expected]} nodes, found #{cluster_size}" if cluster_size != config[:expected].to_i
-    ok "Expected to find #{config[:expected]} nodes and found those #{cluster_size}" if cluster_size == config[:expected].to_i
+
+    begin
+      mysql = Mysql2::Client.new(
+        host: config[:hostname],
+        username: db_user,
+        password: db_pass,
+        port: config[:port].to_i,
+        socket: config[:socket]
+      )
+      cluster_size = mysql.query("SHOW GLOBAL STATUS LIKE 'wsrep_cluster_size'").fetch_hash.fetch('Value').to_i
+      critical "Expected to find #{config[:expected]} nodes, found #{cluster_size}" if cluster_size != config[:expected].to_i
+      ok "Expected to find #{config[:expected]} nodes and found those #{cluster_size}" if cluster_size == config[:expected].to_i
+    end
   rescue Mysql2::Error => e
     critical "Percona MySQL check failed: #{e.error}"
   ensure
-    db&.close
+    mysql&.close
     # db.close if db
-  end
-
-  def update_config
-    ini = IniFile.load(config[:ini])
-    section = ini['client']
-    section.each do |key, option|
-      config[key.to_sym] = option
-    end
   end
 end

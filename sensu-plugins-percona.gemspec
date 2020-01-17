@@ -32,8 +32,7 @@ Gem::Specification.new do |s|
   s.version                = SensuPluginsPercona::Version::VER_STRING
 
   s.add_runtime_dependency 'inifile', '3.0.0'
-  # s.add_runtime_dependency 'mysql2',       '0.4.10'
-  s.add_runtime_dependency 'ruby-mysql', '~> 2.9'
+  s.add_runtime_dependency 'mysql2', '>0.5'
   s.add_runtime_dependency 'sensu-plugin', '>=4.0', '<5.0'
 
   s.add_development_dependency 'bundler',                   '~> 2.1'
