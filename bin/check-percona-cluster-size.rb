@@ -11,13 +11,13 @@
 # Based on the MySQL Health Plugin by Panagiotis Papadomitsos
 #
 # Depends on mysql:
-# gem install mysql2
+# gem install ruby-mysql
 #
 # Released under the same terms as Sensu (the MIT license); see LICENSE
 # for details.
 
 require 'sensu-plugin/check/cli'
-require 'mysql2'
+require 'ruby-mysql'
 require 'inifile'
 
 class CheckPerconaClusterSize < Sensu::Plugin::Check::CLI
@@ -77,10 +77,10 @@ class CheckPerconaClusterSize < Sensu::Plugin::Check::CLI
     end
 
     begin
-      mysql = Mysql2::Client.new(
+      mysql = Mysql.new(
         host: config[:hostname],
-        username: db_user,
-        password: db_pass,
+        user: db_user,
+        passwd: db_pass,
         port: config[:port].to_i,
         socket: config[:socket]
       )
@@ -88,7 +88,7 @@ class CheckPerconaClusterSize < Sensu::Plugin::Check::CLI
       critical "Expected to find #{config[:expected]} nodes, found #{cluster_size}" if cluster_size != config[:expected].to_i
       ok "Expected to find #{config[:expected]} nodes and found those #{cluster_size}" if cluster_size == config[:expected].to_i
     end
-  rescue Mysql2::Error => e
+  rescue Mysql::Error => e
     critical "Percona MySQL check failed: #{e.error}"
   ensure
     mysql&.close

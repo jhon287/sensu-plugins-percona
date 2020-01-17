@@ -9,8 +9,8 @@
 # Additional hacks by Joe Miller - https://github.com/joemiller
 # Modified for Percona cluster statistics by Chris Alexander, import.io - https://github.com/chrisalexander - https://github.com/import-io
 #
-# Depends on mysql2:
-# gem install mysql2
+# Depends on ruby-mysql:
+# gem install ruby-mysql
 #
 # This will not return anything on MySQL servers, or on Percona servers that do not have clustering running
 #
@@ -18,7 +18,7 @@
 # for details.
 
 require 'sensu-plugin/metric/cli'
-require 'mysql2'
+require 'ruby-mysql'
 require 'socket'
 
 class PerconaCluster2Graphite < Sensu::Plugin::Metric::CLI::Graphite
@@ -123,7 +123,7 @@ class PerconaCluster2Graphite < Sensu::Plugin::Metric::CLI::Graphite
     end
 
     begin
-      mysql = Mysql2::Client.new(
+      mysql = Mysql.new(
         host: config[:hostname],
         username: db_user,
         password: db_pass,
