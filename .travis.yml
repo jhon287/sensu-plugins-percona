@@ -3,9 +3,9 @@ sudo: true
 language: ruby
 cache:
 - bundler
-# before_install:
+before_install:
 # - sudo iptables -L DOCKER || ( echo "DOCKER iptables chain missing" ; sudo iptables -N DOCKER )
-# - sudo apt-get install libmysqlclient-dev -y
+- sudo apt-get install libmysqlclient-dev -y
 install:
 - bundle install
 rvm:
