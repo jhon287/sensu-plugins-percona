@@ -1,6 +1,10 @@
+sudo: true
+service: docker
 language: ruby
 cache:
 - bundler
+before_install:
+  - sudo iptables -L DOCKER || ( echo "DOCKER iptables chain missing" ; sudo iptables -N DOCKER )
 install:
 - bundle install
 rvm:
@@ -13,11 +17,12 @@ notifications:
     on_success: change
     on_failure: always
 script:
-- bundle exec rake default
+- bundle exec rake quick
+- bundle exec rake kitchen:ruby-`echo $TRAVIS_RUBY_VERSION | sed -e "s/\.//g"`-debian-8
 - gem build sensu-plugins-percona.gemspec
 - gem install sensu-plugins-percona-*.gem
 before_deploy:
-  - bash -c "[ ! -d bonsai/ ] && git clone https://github.com/sensu/sensu-go-bonsai-asset.git bonsai || echo 'bonsai/ exists, skipping git clone'"
+  - bash -c "[ ! -d bonsai/ ] && git clone https://github.com/sensu/sensu-go-bonsai-asset.git bonsai || echo 'bonsai/ exists, skipping git clone' ; cp asset_build_scripts/Dockerfile.* bonsai/ruby-runtime/"
 deploy:
   - provider: script
     script: chmod +x bonsai/ruby-runtime/travis-build-ruby-plugin-assets.sh && bonsai/ruby-runtime/travis-build-ruby-plugin-assets.sh sensu-plugins-percona

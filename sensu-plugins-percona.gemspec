@@ -27,22 +27,28 @@ Gem::Specification.new do |s|
   s.platform               = Gem::Platform::RUBY
   s.post_install_message   = 'You can use the embedded Ruby by setting EMBEDDED_RUBY=true in /etc/default/sensu'
   s.require_paths          = ['lib']
+  s.required_ruby_version  = '>= 2.4.0'
+
   s.summary                = 'Sensu plugins for percona'
   s.test_files             = s.files.grep(%r{^(test|spec|features)/})
   s.version                = SensuPluginsPercona::Version::VER_STRING
 
   s.add_runtime_dependency 'inifile', '3.0.0'
-  s.add_runtime_dependency 'ruby-mysql', '2.9.14'
-  # s.add_runtime_dependency 'mysql2', '>0.5'
-  s.add_runtime_dependency 'sensu-plugin', '>=4.0', '<5.0'
+  # s.add_runtime_dependency 'ruby-mysql', '2.9.14'
+  s.add_runtime_dependency 'mysql2', '>0.5'
+  s.add_runtime_dependency 'sensu-plugin', '~> 4.0'
 
   s.add_development_dependency 'bundler',                   '~> 2.1'
-  s.add_development_dependency 'codeclimate-test-reporter', '~> 0.4'
+  s.add_development_dependency 'codeclimate-test-reporter', '~> 1.0'
   s.add_development_dependency 'github-markup',             '~> 3.0'
+  s.add_development_dependency 'kitchen-docker',            '~> 2.6'
+  s.add_development_dependency 'kitchen-localhost',         '~> 0.3'
   s.add_development_dependency 'pry',                       '~> 0.10'
-  s.add_development_dependency 'rake',                      '~> 12.3'
+  s.add_development_dependency 'rake',                      '~> 13.0'
   s.add_development_dependency 'redcarpet',                 '~> 3.2'
   s.add_development_dependency 'rspec',                     '~> 3.4'
-  s.add_development_dependency 'rubocop',                   '~> 0.50.0'
-  s.add_development_dependency 'yard',                      '~> 0.8'
+  s.add_development_dependency 'rubocop',                   '~> 0.79.0'
+  s.add_development_dependency 'serverspec',                '~> 2.41.5'
+  s.add_development_dependency 'test-kitchen',              '~> 1.25.0'
+  s.add_development_dependency 'yard',                      '~> 0.9'
 end

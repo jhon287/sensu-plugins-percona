@@ -7,6 +7,8 @@ require 'rspec/core/rake_task'
 require 'rubocop/rake_task'
 require 'yard'
 require 'yard/rake/yardoc_task'
+require 'English'
+require 'kitchen/rake_tasks'
 
 desc 'Don\'t run Rubocop for unsupported versions'
 begin
@@ -48,4 +50,10 @@ task :check_binstubs do
   end
 end
 
+Kitchen::RakeTasks.new
+
+desc 'Alias for kitchen:all'
+task integration: 'kitchen:all'
+
 task default: args
+task quick: %i[make_bin_executable yard rubocop check_binstubs]

@@ -17,20 +17,26 @@
 # for details.
 
 require 'sensu-plugin/check/cli'
-require 'mysql'
+require 'mysql2'
 require 'inifile'
 
 class CheckPerconaClusterSize < Sensu::Plugin::Check::CLI
-  option :user,
+  option :hostname,
+         description: 'Hostname to login to',
+         short: '-h',
+         long: '--hostname VALUE',
+         default: 'localhost'
+
+  option :username,
          description: 'MySQL User',
-         short: '-u USER',
-         long: '--user USER',
+         short: '-u',
+         long: '--username VALUE',
          default: 'root'
 
   option :password,
          description: 'MySQL Password',
-         short: '-p PASS',
-         long: '--password PASS'
+         short: '-p',
+         long: '--password VALUE'
 
   option :ini,
          description: 'ini file',
@@ -42,17 +48,12 @@ class CheckPerconaClusterSize < Sensu::Plugin::Check::CLI
          long: '--ini-section VALUE',
          default: 'client'
 
-  option :hostname,
-         description: 'Hostname to login to',
-         short: '-h HOST',
-         long: '--hostname HOST',
-         default: 'localhost'
-
   option :port,
          description: 'Port to connect to',
          short: '-P PORT',
          long: '--port PORT',
-         default: '3306'
+         proc: proc(&:to_i),
+         default: 3306
 
   option :socket,
          description: 'Socket to use',
@@ -63,6 +64,7 @@ class CheckPerconaClusterSize < Sensu::Plugin::Check::CLI
          description: 'Number of servers expected in the cluster',
          short: '-e NUMBER',
          long: '--expected NUMBER',
+         proc: proc(&:to_i),
          default: 1
 
   def run
@@ -77,21 +79,21 @@ class CheckPerconaClusterSize < Sensu::Plugin::Check::CLI
     end
 
     begin
-      mysql = Mysql.new(
+      db = Mysql2::Client.new(
         host: config[:hostname],
-        user: db_user,
-        passwd: db_pass,
+        username: db_user,
+        password: db_pass,
         port: config[:port].to_i,
         socket: config[:socket]
       )
-      cluster_size = mysql.query("SHOW GLOBAL STATUS LIKE 'wsrep_cluster_size'").fetch_hash.fetch('Value').to_i
+      cluster_size = db.query("SHOW GLOBAL STATUS LIKE 'wsrep_cluster_size'").fetch_hash.fetch['Value'].to_i
       critical "Expected to find #{config[:expected]} nodes, found #{cluster_size}" if cluster_size != config[:expected].to_i
       ok "Expected to find #{config[:expected]} nodes and found those #{cluster_size}" if cluster_size == config[:expected].to_i
     end
-  rescue Mysql::Error => e
+  rescue Mysql2::Error => e
     critical "Percona MySQL check failed: #{e.error}"
   ensure
-    mysql&.close
+    db&.close
     # db.close if db
   end
 end

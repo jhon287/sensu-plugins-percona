@@ -11,7 +11,7 @@ AbcSize:
   Max: 100
 
 BlockLength:
-  Max: 35
+  Max: 50
 
 FileName:
   Enabled: false

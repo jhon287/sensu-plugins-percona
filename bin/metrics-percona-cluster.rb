@@ -18,7 +18,7 @@
 # for details.
 
 require 'sensu-plugin/metric/cli'
-require 'mysql'
+require 'mysql2'
 require 'socket'
 
 class PerconaCluster2Graphite < Sensu::Plugin::Metric::CLI::Graphite
@@ -123,7 +123,7 @@ class PerconaCluster2Graphite < Sensu::Plugin::Metric::CLI::Graphite
     end
 
     begin
-      mysql = Mysql.new(
+      db = Mysql2::Client.new(
         host: config[:hostname],
         username: db_user,
         password: db_pass,
@@ -131,7 +131,7 @@ class PerconaCluster2Graphite < Sensu::Plugin::Metric::CLI::Graphite
         socket: config[:socket]
       )
 
-      results = mysql.query("SHOW GLOBAL STATUS LIKE 'wsrep_%'")
+      results = db.query("SHOW GLOBAL STATUS LIKE 'wsrep_%'")
     rescue StandardError => e
       puts e.message
     end
