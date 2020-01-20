@@ -4,7 +4,7 @@
       use_sudo: false
       links:
         # TODO: multiple versions at some point
-        - sensu-percona:sensu-percona        
+        - sensu-debian-stretch:sensu-debian-stretch        
     
     provisioner:
       name: shell
@@ -17,15 +17,9 @@
       ruby_bindir: /usr/local/bin
     
     platforms:
-      - name: debian-8
+      - name: debian-10
     
     suites:
-      - name: ruby-21
-        driver:
-          image: ruby:2.1-slim
-      - name: ruby-22
-        driver:
-          image: ruby:2.2-slim
       - name: ruby-230
         driver:
           image: ruby:2.3.0-slim
