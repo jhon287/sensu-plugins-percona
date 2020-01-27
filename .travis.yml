@@ -1,10 +1,10 @@
 sudo: true
-# service: docker
+service: docker
 language: ruby
 cache:
 - bundler
 before_install:
-# - sudo iptables -L DOCKER || ( echo "DOCKER iptables chain missing" ; sudo iptables -N DOCKER )
+- sudo iptables -L DOCKER || ( echo "DOCKER iptables chain missing" ; sudo iptables -N DOCKER )
 - sudo apt-get install libmysqlclient-dev -y
 install:
 - bundle install
@@ -19,9 +19,9 @@ notifications:
     on_failure: always
 
 before_script:
-  # - docker run --name sensu-debian-stretch -d debian:stretch; sudo apt-get update; sudo apt-get install libmariadbclient-dev  -y
-  # - docker ps -a
-  - bash -c "[ ! -d bonsai/ ] && git clone https://github.com/sensu/sensu-go-bonsai-asset.git bonsai || echo 'bonsai/ exists, skipping git clone'"
+  - docker run --name sensu-debian-stretch -d debian:stretch; sudo apt-get update; sudo apt-get install libmariadbclient-dev  -y
+  - docker ps -a
+  - bash -c "[ ! -d bonsai/ ] && git clone https://github.com/sensu/sensu-go-bonsai-asset.git bonsai || echo 'bonsai/ exists, skipping git clone' ; cp asset_build_scripts/Dockerfile.* bonsai/ruby-runtime/""
     
 script:
 - bundle exec rake quick
