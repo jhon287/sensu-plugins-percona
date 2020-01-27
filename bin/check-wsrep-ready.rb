@@ -15,7 +15,7 @@
 #
 # DEPENDENCIES:
 #   gem: sensu-plugin
-#   gem: ruby-mysql
+#   gem: mysql2
 #
 # USAGE:
 #
@@ -95,7 +95,7 @@ class CheckWsrepReady < Sensu::Plugin::Check::CLI
   rescue Mysql2::Error => e
     critical "Percona MySQL check failed: #{e.error}"
   ensure
-    mysql&.close
+    db&.close
     # db.close if db
   end
 end
