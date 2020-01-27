@@ -17,4 +17,4 @@ mkmf.log
 .idea/*
 *.gem
 Gemfile.lock
-.tool-versions
+/.tool-versions

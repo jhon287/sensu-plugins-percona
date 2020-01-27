@@ -86,7 +86,7 @@ class CheckPerconaClusterSize < Sensu::Plugin::Check::CLI
         port: config[:port].to_i,
         socket: config[:socket]
       )
-      cluster_size = db.query("SHOW GLOBAL STATUS LIKE 'wsrep_cluster_size'").fetch_hash.fetch['Value'].to_i
+      cluster_size = db.query("SHOW GLOBAL STATUS LIKE 'wsrep_cluster_size'").first['Value'].to_i
       critical "Expected to find #{config[:expected]} nodes, found #{cluster_size}" if cluster_size != config[:expected].to_i
       ok "Expected to find #{config[:expected]} nodes and found those #{cluster_size}" if cluster_size == config[:expected].to_i
     end
