@@ -31,18 +31,25 @@
 
 require 'sensu-plugin/check/cli'
 require 'mysql2'
+require 'inifile'
 
 class CheckWsrepReady < Sensu::Plugin::Check::CLI
-  option :user,
+  option :hostname,
+         description: 'Hostname to login to',
+         short: '-h HOST',
+         long: '--hostname HOST',
+         default: 'localhost'
+
+  option :username,
          description: 'MySQL User',
-         short: '-u USER',
-         long: '--user USER',
+         short: '-u',
+         long: '--username VALUE',
          default: 'root'
 
   option :password,
          description: 'MySQL Password',
-         short: '-p PASS',
-         long: '--password PASS'
+         short: '-p',
+         long: '--password VALUE'
 
   option :ini,
          description: 'ini file',
@@ -54,17 +61,12 @@ class CheckWsrepReady < Sensu::Plugin::Check::CLI
          long: '--ini-section VALUE',
          default: 'client'
 
-  option :hostname,
-         description: 'Hostname to login to',
-         short: '-h HOST',
-         long: '--hostname HOST',
-         default: 'localhost'
-
   option :port,
          description: 'Port to connect to',
          short: '-P PORT',
          long: '--port PORT',
-         default: '3306'
+         proc: proc(&:to_i),
+         default: 3306
 
   option :socket,
          description: 'Socket to use',
@@ -82,18 +84,20 @@ class CheckWsrepReady < Sensu::Plugin::Check::CLI
       db_pass = config[:password]
     end
 
-    db = Mysql2::Client.new(
-      host: config[:hostname],
-      username: db_user,
-      password: db_pass,
-      port: config[:port].to_i,
-      socket: config[:socket]
-    )
-    wsrep_ready = db.query("SHOW STATUS LIKE 'wsrep_ready';").first['Value']
-    critical "WSREP Ready is not ON. Is #{wsrep_ready}" if wsrep_ready != 'ON'
-    ok 'Cluster is OK!' if wsrep_ready == 'ON'
+    begin
+      db = Mysql2::Client.new(
+        host: config[:hostname],
+        username: db_user,
+        password: db_pass,
+        port: config[:port].to_i,
+        socket: config[:socket]
+      )
+      wsrep_ready = db.query("SHOW STATUS LIKE 'wsrep_ready';").first['Value']
+      critical "WSREP Ready is not ON. Is #{wsrep_ready}" if wsrep_ready != 'ON'
+      ok 'Cluster is OK!' if wsrep_ready == 'ON'
+    end
   rescue Mysql2::Error => e
-    critical "Percona MySQL check failed: #{e.error}"
+    critical "Percona MySQL wsrep ready failed: #{e.error}"
   ensure
     db&.close
     # db.close if db
