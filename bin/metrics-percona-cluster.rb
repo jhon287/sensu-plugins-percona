@@ -20,6 +20,7 @@
 require 'sensu-plugin/metric/cli'
 require 'mysql2'
 require 'socket'
+require 'inifile'
 
 class PerconaCluster2Graphite < Sensu::Plugin::Metric::CLI::Graphite
   option :user,
