@@ -74,24 +74,22 @@ class CheckWsrepReady < Sensu::Plugin::Check::CLI
          long: '--socket SOCKET'
 
   def run
-    if config[:ini]
-      ini = IniFile.load(config[:ini])
-      section = ini[config[:ini_section]]
-      db_user = section['user']
-      db_pass = section['password']
-    else
-      db_user = config[:user]
-      db_pass = config[:password]
-    end
-
     begin
-      db = Mysql2::Client.new(
-        host: config[:hostname],
-        username: db_user,
-        password: db_pass,
-        port: config[:port].to_i,
-        socket: config[:socket]
-      )
+      db =
+        if config[:ini]
+          Mysql2::Client.new(
+            default_file: config[:ini],
+            default_group: config[:ini_section]
+          )
+        else
+          Mysql2::Client.new(
+            host: config[:hostname],
+            username: config[:user],
+            password: config[:password],
+            port: config[:port].to_i,
+            socket: config[:socket]
+          )
+        end
       wsrep_ready = db.query("SHOW STATUS LIKE 'wsrep_ready';").first['Value']
       critical "WSREP Ready is not ON. Is #{wsrep_ready}" if wsrep_ready != 'ON'
       ok 'Cluster is OK!' if wsrep_ready == 'ON'

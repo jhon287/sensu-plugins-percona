@@ -113,24 +113,22 @@ class PerconaCluster2Graphite < Sensu::Plugin::Metric::CLI::Graphite
       }
     }
 
-    if config[:ini]
-      ini = IniFile.load(config[:ini])
-      section = ini[config[:ini_section]]
-      db_user = section['user']
-      db_pass = section['password']
-    else
-      db_user = config[:user]
-      db_pass = config[:password]
-    end
-
     begin
-      db = Mysql2::Client.new(
-        host: config[:hostname],
-        username: db_user,
-        password: db_pass,
-        port: config[:port].to_i,
-        socket: config[:socket]
-      )
+      db =
+        if config[:ini]
+          Mysql2::Client.new(
+            default_file: config[:ini],
+            default_group: config[:ini_section]
+          )
+        else
+          Mysql2::Client.new(
+            host: config[:hostname],
+            username: config[:user],
+            password: config[:password],
+            port: config[:port].to_i,
+            socket: config[:socket]
+          )
+        end
 
       results = db.query("SHOW GLOBAL STATUS LIKE 'wsrep_%'")
     rescue StandardError => e
